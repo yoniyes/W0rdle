@@ -1,4 +1,4 @@
-from english_words import english_words_lower_set
+import json
 import numpy as np
 import random
 from termcolor import colored
@@ -9,8 +9,10 @@ YELLOW = 1
 GREEN = 2
 
 
-def getWordList(wordLen=5):
-    return [word for word in english_words_lower_set if len(word) == wordLen and "'" not in word]
+def getWordList():
+    with open('wordle_allowed_guesses.json', 'r') as fd:
+        wordList = json.loads(fd.read())
+    return wordList
 
 def chooseWordAtRandom(wordList):
     return random.choice(wordList)
@@ -74,7 +76,6 @@ def printResults(guessHistory):
         print()
 
 def run():
-    wordLength = 5
     maxGuesses = 6
     totalGuesses = 0
     maxReductionGuessesPhaseLength = 3
