@@ -73,50 +73,53 @@ def printResults(guessHistory):
             idx += 1
         print()
 
-wordLength = 5
-maxGuesses = 6
-totalGuesses = 0
-maxReductionGuessesPhaseLength = 3
+def run():
+    wordLength = 5
+    maxGuesses = 6
+    totalGuesses = 0
+    maxReductionGuessesPhaseLength = 3
 
-wordList = getWordList()
-startSize = len(wordList)
-solution = chooseWordAtRandom(wordList)
-guessHistory = [{'guess': '', 'result': []} for _ in range(maxGuesses)]
+    wordList = getWordList()
+    startSize = len(wordList)
+    solution = chooseWordAtRandom(wordList)
+    guessHistory = [{'guess': '', 'result': []} for _ in range(maxGuesses)]
 
-# Solution space size reduction phase
-reductionPhaseTurnCount = 0
-for turn in range(maxReductionGuessesPhaseLength):
-    if isWordSpaceSmallEnough(len(wordList), startSize):
-        break
+    # Solution space size reduction phase
+    reductionPhaseTurnCount = 0
+    for turn in range(maxReductionGuessesPhaseLength):
+        if isWordSpaceSmallEnough(len(wordList), startSize):
+            break
 
-    reductionPhaseTurnCount += 1
-    totalGuesses = reductionPhaseTurnCount
-    guessHistory[turn]['guess'] = chooseWordReductionPhaseStrategy(wordList, guessHistory[:turn])
-    guessHistory[turn]['result'] = checkGuess(guessHistory[turn]['guess'], solution)
-    if isGuessCorrect(guessHistory[turn]):
-        printResults(guessHistory)
-        # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[turn]['guess'].upper() + " correct! YOU WON!")
-        exit(0)
-    # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[turn]['guess'].upper() + " incorrect...")
-    wordList = removeIrrelevantWords(wordList, guessHistory[turn])
+        reductionPhaseTurnCount += 1
+        totalGuesses = reductionPhaseTurnCount
+        guessHistory[turn]['guess'] = chooseWordReductionPhaseStrategy(wordList, guessHistory[:turn])
+        guessHistory[turn]['result'] = checkGuess(guessHistory[turn]['guess'], solution)
+        if isGuessCorrect(guessHistory[turn]):
+            printResults(guessHistory)
+            # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[turn]['guess'].upper() + " correct! YOU WON!")
+            return 0
+        # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[turn]['guess'].upper() + " incorrect...")
+        wordList = removeIrrelevantWords(wordList, guessHistory[turn])
 
-# Precise guess phase
-maxPreciseGuessesPhaseLength = maxGuesses - reductionPhaseTurnCount
-preciseGuessPhaseTurnCount = 0
-for _ in range(maxPreciseGuessesPhaseLength):
-    preciseGuessPhaseTurnCount += 1
-    totalGuesses += 1
+    # Precise guess phase
+    maxPreciseGuessesPhaseLength = maxGuesses - reductionPhaseTurnCount
+    preciseGuessPhaseTurnCount = 0
+    for _ in range(maxPreciseGuessesPhaseLength):
+        preciseGuessPhaseTurnCount += 1
+        totalGuesses += 1
 
-    guessHistory[totalGuesses-1]['guess'] = chooseWordPreciseGuessPhaseStrategy(wordList, guessHistory[:totalGuesses])
-    guessHistory[totalGuesses-1]['result'] = checkGuess(guessHistory[totalGuesses-1]['guess'], solution)
-    if isGuessCorrect(guessHistory[totalGuesses-1]):
-        printResults(guessHistory)
-        # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[totalGuesses-1]['guess'].upper() + " correct! YOU WON!")
-        exit(0)
-    # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[totalGuesses-1]['guess'].upper() + " incorrect...")
-    wordList = removeIrrelevantWords(wordList, guessHistory[totalGuesses-1])
+        guessHistory[totalGuesses-1]['guess'] = chooseWordPreciseGuessPhaseStrategy(wordList, guessHistory[:totalGuesses])
+        guessHistory[totalGuesses-1]['result'] = checkGuess(guessHistory[totalGuesses-1]['guess'], solution)
+        if isGuessCorrect(guessHistory[totalGuesses-1]):
+            printResults(guessHistory)
+            # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[totalGuesses-1]['guess'].upper() + " correct! YOU WON!")
+            return 0
+        # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[totalGuesses-1]['guess'].upper() + " incorrect...")
+        wordList = removeIrrelevantWords(wordList, guessHistory[totalGuesses-1])
 
-printResults(guessHistory)
-print("[INFO]\t GAME OVER... solution is " + solution)
-exit(1)
+    printResults(guessHistory)
+    print("[INFO]\t GAME OVER... solution is " + solution)
+    return 1
 
+if __name__ == '__main__':
+    exit(run())
