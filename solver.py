@@ -32,8 +32,10 @@ def chooseWordAtRandom(wordList):
 
 def chooseWordReductionPhaseStrategy(wordList, guessHistory=[]):
     # Filter for characters that appear in many words, but are not the most common.
-    charsOfInterest = [x[0] for x in 
-        list(filter(lambda x: x[1] >= 0.3, calculateCharacterProbabilities(wordList).items()))]
+    charsOfInterestWithProbabilities = \
+        list(filter(lambda x: x[1] >= 0.25, calculateCharacterProbabilities(wordList).items()))
+    charsOfInterestWithProbabilities.sort(key=lambda x: x[1], reverse=True)
+    charsOfInterest = [x[0] for x in charsOfInterestWithProbabilities]
     wordCandidates = wordList
     # Find words that have the most characters of interest in them.
     for c in charsOfInterest:
