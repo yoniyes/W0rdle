@@ -14,14 +14,38 @@ def getWordList():
         wordList = json.loads(fd.read())
     return wordList
 
+def calculateCharacterProbabilities(wordList):
+    hist = {}
+    for word in wordList:
+        charList = list(word)
+        for c in charList:
+            if c not in hist.keys():
+                hist[c] = 0
+            hist[c] += 1
+            charList = list(filter(lambda x: x != c, charList))
+    for x in hist.values():
+        x /= len(wordList)
+    return hist
+
 def chooseWordAtRandom(wordList):
     return random.choice(wordList)
 
-def chooseWordReductionPhaseStrategy(wordList, guessHistory):
-    return chooseWordAtRandom(wordList)
+def chooseWordReductionPhaseStrategy(wordList, guessHistory=[]):
+    # Filter for characters that appear in many words, but are not the most common.
+    charsOfInterest = [x[0] for x in 
+        list(filter(lambda x: x[1] >= 0.3, calculateCharacterProbabilities(wordList).items()))]
+    wordCandidates = wordList
+    # Find words that have the most characters of interest in them.
+    for c in charsOfInterest:
+        temp = list(filter(lambda word: c in word, wordCandidates))
+        if len(temp) == 0:
+            break
+        wordCandidates = temp
+    return chooseWordAtRandom(wordCandidates)
+    
 
 def chooseWordPreciseGuessPhaseStrategy(wordList, guessHistory):
-    return chooseWordAtRandom(wordList)
+    return chooseWordReductionPhaseStrategy(wordList)
 
 def isWordSpaceSmallEnough(currentSize, startSize, factor=0.1):
     return currentSize <= np.ceil(startSize * factor)
@@ -101,6 +125,8 @@ def run():
             return 0
         # print("[INFO]\t Guess #" + str(totalGuesses) + ": " + guessHistory[turn]['guess'].upper() + " incorrect...")
         wordList = removeIrrelevantWords(wordList, guessHistory[turn])
+
+    print("Reduction phase took " + str(reductionPhaseTurnCount) + " guesses")
 
     # Precise guess phase
     maxPreciseGuessesPhaseLength = maxGuesses - reductionPhaseTurnCount
